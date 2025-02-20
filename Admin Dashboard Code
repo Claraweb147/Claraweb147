@@ -1,0 +1,42 @@
+```
+# routes/admin_dashboard.py
+from flask import Flask, render_template, request, jsonify
+from flask_mongoengine import MongoEngine
+
+app = Flask(__name__)
+app.config["MONGODB_DB"] = "broker_bridge"
+db = MongoEngine(app)
+
+@app.route("/admin/dashboard")
+def admin_dashboard():
+    admin_id = session.get("admin_id")
+    if admin_id:
+        admin = Admin.objects.get(id=admin_id)
+        users = User.objects.all()
+        properties = Property.objects.all()
+        transactions = Transaction.objects.all()
+        return render_template("admin_dashboard.html", users=users, properties=properties, transactions=transactions)
+    else:
+        return redirect(url_for("login"))
+
+```
+
+### User Management, Property Management, and Transaction Management Code
+```
+# models/admin.py
+from flask import Flask, request, jsonify
+from flask_mongoengine import MongoEngine
+
+app = Flask(__name__)
+app.config["MONGODB_DB"] = "broker_bridge"
+db = MongoEngine(app)
+
+class Admin(db.Document):
+    name = db.StringField(required=True)
+    email = db.StringField(required=True, unique=True)
+    password = db.StringField(required=True)
+
+    def __repr__(self):
+        return f"Admin('{self.name}', '{self.email}')"
+
+```
