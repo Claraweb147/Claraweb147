@@ -1,0 +1,45 @@
+```
+# routes/investor_dashboard.py
+from flask import Flask, render_template, request, jsonify
+from flask_mongoengine import MongoEngine
+
+app = Flask(__name__)
+app.config["MONGODB_DB"] = "broker_bridge"
+db = MongoEngine(app)
+
+@app.route("/investor/dashboard")
+def investor_dashboard():
+    investor_id = session.get("investor_id")
+    if investor_id:
+        investor = Investor.objects.get(id=investor_id)
+        portfolio = investor.portfolio
+        transactions = investor.transactions
+        reviews = investor.reviews
+        return render_template("investor_dashboard.html", portfolio=portfolio, transactions=transactions, reviews=reviews)
+    else:
+        return redirect(url_for("login"))
+
+```
+
+### Portfolio, Transactions, and Reviews Code
+```
+# models/investor.py
+from flask import Flask, request, jsonify
+from flask_mongoengine import MongoEngine
+
+app = Flask(__name__)
+app.config["MONGODB_DB"] = "broker_bridge"
+db = MongoEngine(app)
+
+class Investor(db.Document):
+    name = db.StringField(required=True)
+    email = db.StringField(required=True, unique=True)
+    password = db.StringField(required=True)
+    portfolio = db.ListField(db.ReferenceField("Property"))
+    transactions = db.ListField(db.ReferenceField("Transaction"))
+    reviews = db.ListField(db.ReferenceField("Review"))
+
+    def __repr__(self):
+        return f"Investor('{self.name}', '{self.email}')"
+
+```
